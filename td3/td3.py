@@ -115,6 +115,9 @@ class td3:
         # Initialize Noise
         self.noise_scale = self.params['noise_scale'] # Adjust the noise scale as needed
 
+        # Early Stopping Param
+        self.early_counter = 0
+
         # Lists for plotting
         self.critic_losses = []
         self.actor_losses = []
@@ -124,6 +127,15 @@ class td3:
     
     def change_environment(self, env):
         self.env = env
+
+    def early_stop(self, cumulative_reward):
+        if cumulative_reward >= -30:
+            self.early_counter+= 1
+            if self.early_counter >= 4:
+                return True
+            return False
+        self.early_counter = 0
+        return False
 
     def add_noise(self, action):
         # Add Gaussian Noise
@@ -206,7 +218,7 @@ class td3:
                 action = self.get_action(state)
 
                 # Execute action
-                next_state, reward, done, truncated, info = self.env.step(action)
+                next_state, reward, terminated, truncated, info = self.env.step(action)
                 next_state = torch.from_numpy(next_state).float().ravel()
 
                 cumulative_reward += reward
@@ -243,6 +255,8 @@ class td3:
                 if type(cumulative_reward) == Tensor:
                     cumulative_reward = cumulative_reward.item()
                 print(f"Episode {episode} reward: {round(cumulative_reward, ndigits=2)}")
+            if self.early_stop(cumulative_reward):
+                return
 
     def test(self, episodes):
         for episode in range(episodes):
@@ -258,7 +272,7 @@ class td3:
                 action = self.get_action(state)
 
                 # Execute action
-                next_state, reward, done, truncated, info = self.env.step(action)
+                next_state, reward, terminated, truncated, info = self.env.step(action)
                 next_state = torch.from_numpy(next_state).float().ravel()
                 cumulative_reward += reward
 
@@ -282,7 +296,7 @@ class td3:
                 action = self.get_action(state).detach().numpy()
 
                 # Execute action
-                next_state, reward, done, truncated, info = self.env.step(action)
+                next_state, reward, terminated, truncated, info = self.env.step(action)
                 next_state = torch.from_numpy(next_state).float().ravel()
                 cumulative_reward += reward
 
