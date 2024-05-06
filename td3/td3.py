@@ -159,7 +159,7 @@ class td3:
         action = self.actor_network.forward(state) # output from the actor network is a probability distrobution over the action space
         # Add noise
         action = self.add_noise(action.detach().numpy())
-        return torch.tensor(action)
+        return action
     
     def update_critic(self, states: Tensor, actions: Tensor, next_states: Tensor, rewards: Tensor, terminateds: Tensor):
         next_actions = self.target_actor.forward(next_states).detach()
@@ -255,8 +255,8 @@ class td3:
                 if type(cumulative_reward) == Tensor:
                     cumulative_reward = cumulative_reward.item()
                 print(f"Episode {episode} reward: {round(cumulative_reward, ndigits=2)}")
-            if self.early_stop(cumulative_reward):
-                return
+            # if self.early_stop(cumulative_reward):
+            #     return
 
     def test(self, episodes):
         for episode in range(episodes):
@@ -293,7 +293,7 @@ class td3:
             cumulative_reward = 0
             while not terminated and not truncated:
                 # Select action
-                action = self.get_action(state).detach().numpy()
+                action = self.get_action(state)
 
                 # Execute action
                 next_state, reward, terminated, truncated, info = self.env.step(action)
