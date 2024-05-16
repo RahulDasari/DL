@@ -12,3 +12,4 @@ Open the final_project_ant_td3.ipynb file to run the t3d algorithm on the ant en
 The weights are saved in the ant/td3 folder which contains the parameters for the 2 critics and 1 actor as well as all the data pertaining to the plots shown in the final_project_ant_td3.ipynb file.
 
 # RPO
+Open the ant_rpo.ipynb file to run the RPO algorithm on the an environment. The class that runs the agent is present in rpo/rpo.py. The weights are saved in rpo/rpo_fullnet.pth. 
